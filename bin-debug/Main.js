@@ -77,6 +77,7 @@ var Main = (function (_super) {
         var _this = _super.call(this) || this;
         _this.xAddSpeed = 0;
         _this.yAddSpeed = 0;
+        _this.pyNum = 18;
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         return _this;
     }
@@ -142,13 +143,15 @@ var Main = (function (_super) {
     Main.prototype.createGameScene = function () {
         // let speedC=6
         var _this = this;
-        var mian = this.createBitmapByName("mian_jpeg");
+        var mian = this.createBitmapByName("mian_jpg");
+        // mian.texture = RES.getRes("box");
+        mian.fillMode = egret.BitmapFillMode.SCALE;
         var qiu = this.createBitmapByName("qiuqiu_3_png");
         var box1 = this.createDefaultObj(1, 50, 50);
         qiu.width *= 0.5;
         qiu.height *= 0.5;
-        mian.width = 1024;
-        mian.height = 646;
+        mian.width = 646;
+        mian.height = 1024;
         this.addChild(mian);
         this.addChild(qiu);
         // box1.addChild(qiu)
@@ -162,10 +165,18 @@ var Main = (function (_super) {
         var label = new egret.TextField();
         label.text = "This is a text!";
         this.addChild(label);
+        var label2 = new egret.TextField();
+        label2.text = "This is a text!";
+        this.addChild(label2);
+        label2.y = 50;
+        var label1 = new egret.TextField();
+        label1.text = "This is a text!";
+        this.addChild(label1);
+        label1.y = 150;
         // let xSpeed=(Math.random()*2-1)*speedC
         // let ySpeed=(Math.random()*2-1)*speedC
-        qiu["xSpeed"] = 0;
-        qiu["ySpeed"] = 0;
+        qiu["xSpeed"] = 3;
+        qiu["ySpeed"] = 3;
         // box1.x=100
         // box1.y=100
         // let sky = this.createBitmapByName("bg_jpg");
@@ -178,7 +189,7 @@ var Main = (function (_super) {
         // this.startPointX=300
         // this.startPointY=300
         // return;
-        this.getOrientation(label);
+        this.getOrientation(label, label2);
         this.addEventListener(egret.Event.ENTER_FRAME, function (evt) {
             // this.startPointX+=(Math.random()*2-1)*4
             // this.startPointY+=(Math.random()*2-1)*4
@@ -191,10 +202,27 @@ var Main = (function (_super) {
             qiu["ySpeed"] += _this.yAddSpeed;
             qiu.x += qiu["xSpeed"];
             qiu.y += qiu["ySpeed"];
-            if (qiu.y <= qiu.height / 2 || qiu.y + qiu.height / 2 >= 646) {
+            label1.text = qiu["xSpeed"].toFixed(2) + "." + qiu["ySpeed"].toFixed(2) + ".";
+            // if(qiu.y<=qiu.height/2 || qiu.y+qiu.height/2>=646){
+            //     qiu["ySpeed"]*=-1*0.8
+            // }
+            // if(qiu.x<=qiu.width/2|| qiu.x+qiu.width/2>=1024){
+            //     qiu["xSpeed"]*=-1*0.8
+            // }
+            if (qiu.y <= qiu.height / 2) {
+                qiu.y = qiu.height / 2;
                 qiu["ySpeed"] *= -1 * 0.8;
             }
-            if (qiu.x <= qiu.width / 2 || qiu.x + qiu.width / 2 >= 1024) {
+            if (qiu.y + qiu.height / 2 >= 1024) {
+                qiu.y = 1024 - qiu.height / 2;
+                qiu["ySpeed"] *= -1 * 0.8;
+            }
+            if (qiu.x <= qiu.width / 2) {
+                qiu.x = qiu.width / 2;
+                qiu["xSpeed"] *= -1 * 0.8;
+            }
+            if (qiu.x + qiu.width / 2 >= 646) {
+                qiu.x = 646 - qiu.width / 2;
                 qiu["xSpeed"] *= -1 * 0.8;
             }
             return false; /// 友情提示： startTick 中回调返回值表示执行结束是否立即重绘
@@ -206,18 +234,19 @@ var Main = (function (_super) {
     };
     Main.prototype.comAddSpeed = function (itemX, itemY) {
     };
-    Main.prototype.getOrientation = function (item) {
+    Main.prototype.getOrientation = function (item, item1) {
         var _this1 = this;
         // if (window.DeviceOrientationEvent!=undefined) {
         window.addEventListener('deviceorientation', function (event) {
-            var alpha = event.alpha;
-            var beta = event.beta;
-            var gamma = event.gamma;
+            var alpha = event.alpha * 0.017453293;
+            var beta = event.beta * 0.017453293;
+            var gamma = event.gamma * 0.017453293;
             // console.log(alpha,beta,gamma)
-            item.text = beta + "." + gamma + "." + alpha;
+            item.text = gamma.toFixed(2) + "." + beta.toFixed(2) + "." + alpha.toFixed(2);
             // alert(alpha)
-            _this1.xAddSpeed = Math.sin(gamma) * 9.8 / 60;
-            _this1.yAddSpeed = Math.sin(beta) * 9.8 / 60;
+            _this1.xAddSpeed = Math.sin(gamma ? gamma : 0) * 9.8 / 60 * _this1.pyNum;
+            _this1.yAddSpeed = Math.sin(beta ? beta : 0) * 9.8 / 60 * _this1.pyNum;
+            item1.text = (Math.sin(gamma ? gamma : 0)).toFixed(2) + "." + (Math.sin(beta ? beta : 0)).toFixed(2);
         }, false);
         // } else {
         //     document.querySelector('body').innerHTML = '你的浏览器不支持陀螺仪';

@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_jpg,egret_icon_png,description_json,mian_jpeg,qiuqiu_meitu_1_png,qiuqiu_3_png",
+			"keys": "bg_jpg,egret_icon_png,description_json,mian_jpeg,qiuqiu_meitu_1_png,qiuqiu_3_png,mian_jpg",
 			"name": "preload"
 		},
 		{
@@ -39,6 +39,11 @@
 			"url": "assets/qiuqiu_3.png",
 			"type": "image",
 			"name": "qiuqiu_3_png"
+		},
+		{
+			"name": "mian_jpg",
+			"type": "image",
+			"url": "assets/mian.jpg"
 		}
 	]
 }

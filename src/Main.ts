@@ -33,6 +33,7 @@ class Main extends egret.DisplayObjectContainer {
     startPointY:number;
     xAddSpeed:number=0;
     yAddSpeed:number=0;
+    pyNum:number=18;
 
     public constructor() {
         super();
@@ -98,13 +99,15 @@ class Main extends egret.DisplayObjectContainer {
     private createGameScene() {
         // let speedC=6
 
-        let mian= this.createBitmapByName("mian_jpeg")
+        let mian= this.createBitmapByName("mian_jpg")
+        // mian.texture = RES.getRes("box");
+        mian.fillMode = egret.BitmapFillMode.SCALE
         let qiu=this.createBitmapByName("qiuqiu_3_png")
         let box1=this.createDefaultObj(1,50,50)
         qiu.width *=0.5
         qiu.height *=0.5
-        mian.width=1024
-        mian.height=646
+        mian.width =646
+        mian.height =1024
         this.addChild(mian)
         this.addChild(qiu)
         // box1.addChild(qiu)
@@ -119,10 +122,20 @@ class Main extends egret.DisplayObjectContainer {
         label.text = "This is a text!"; 
         this.addChild( label );
 
+        var label2:egret.TextField = new egret.TextField(); 
+        label2.text = "This is a text!"; 
+        this.addChild( label2 );
+        label2.y=50
+
+        var label1:egret.TextField = new egret.TextField(); 
+        label1.text = "This is a text!"; 
+        this.addChild( label1 );
+        label1.y=150
+
         // let xSpeed=(Math.random()*2-1)*speedC
         // let ySpeed=(Math.random()*2-1)*speedC
-        qiu["xSpeed"]=0
-        qiu["ySpeed"]=0
+        qiu["xSpeed"]=3
+        qiu["ySpeed"]=3
         // box1.x=100
         // box1.y=100
         // let sky = this.createBitmapByName("bg_jpg");
@@ -135,7 +148,7 @@ class Main extends egret.DisplayObjectContainer {
         // this.startPointX=300
         // this.startPointY=300
         // return;
-        this.getOrientation(label)
+        this.getOrientation(label,label2)
         this.addEventListener( egret.Event.ENTER_FRAME, ( evt:egret.Event )=>{
 
         // this.startPointX+=(Math.random()*2-1)*4
@@ -149,13 +162,32 @@ class Main extends egret.DisplayObjectContainer {
             qiu["ySpeed"]+=this.yAddSpeed
             qiu.x+=qiu["xSpeed"]
             qiu.y+=qiu["ySpeed"]
-            if(qiu.y<=qiu.height/2 || qiu.y+qiu.height/2>=646){
+            label1.text=qiu["xSpeed"].toFixed(2)+"."+qiu["ySpeed"].toFixed(2)+"."
+            // if(qiu.y<=qiu.height/2 || qiu.y+qiu.height/2>=646){
+            //     qiu["ySpeed"]*=-1*0.8
+            // }
+
+            // if(qiu.x<=qiu.width/2|| qiu.x+qiu.width/2>=1024){
+            //     qiu["xSpeed"]*=-1*0.8
+            // }
+
+            if(qiu.y<=qiu.height/2){
+                qiu.y=qiu.height/2
                 qiu["ySpeed"]*=-1*0.8
             }
-
-            if(qiu.x<=qiu.width/2|| qiu.x+qiu.width/2>=1024){
+            if(qiu.y+qiu.height/2>=1024){
+                qiu.y=1024-qiu.height/2
+                qiu["ySpeed"]*=-1*0.8
+            }
+            if(qiu.x<=qiu.width/2){
+                qiu.x=qiu.width/2
                 qiu["xSpeed"]*=-1*0.8
             }
+            if(qiu.x+qiu.width/2>=646){
+                qiu.x=646-qiu.width/2
+                qiu["xSpeed"]*=-1*0.8
+            }
+
 
             
 
@@ -171,19 +203,20 @@ class Main extends egret.DisplayObjectContainer {
 
     }
 
-    private getOrientation(item:egret.TextField){
+    private getOrientation(item:egret.TextField,item1:egret.TextField){
         var _this1=this
         // if (window.DeviceOrientationEvent!=undefined) {
             window.addEventListener('deviceorientation', function(event){
                 
-                    let alpha = event.alpha
-                    let beta = event.beta
-                    let gamma = event.gamma
+                    let alpha = event.alpha*0.017453293
+                    let beta = event.beta*0.017453293
+                    let gamma = event.gamma*0.017453293
                     // console.log(alpha,beta,gamma)
-                    item.text=beta+"."+gamma+"."+alpha
+                    item.text=gamma.toFixed(2)+"."+beta.toFixed(2)+"."+alpha.toFixed(2)
                     // alert(alpha)
-            _this1.xAddSpeed=Math.sin(gamma)*9.8/60
-            _this1.yAddSpeed=Math.sin(beta)*9.8/60
+            _this1.xAddSpeed=Math.sin(gamma?gamma:0)*9.8/60*_this1.pyNum
+            _this1.yAddSpeed=Math.sin(beta?beta:0)*9.8/60*_this1.pyNum
+            item1.text=(Math.sin(gamma?gamma:0)).toFixed(2)+"."+(Math.sin(beta?beta:0)).toFixed(2)
             }, false);
         // } else {
         //     document.querySelector('body').innerHTML = '你的浏览器不支持陀螺仪';
