@@ -33,7 +33,10 @@ class Main extends egret.DisplayObjectContainer {
     startPointY:number;
     xAddSpeed:number=0;
     yAddSpeed:number=0;
-    pyNum:number=18;
+    pyNum:number=8;
+    gameNum:number=0;
+    startTime:number=(new Date()).valueOf();
+    maxTime:number=0
 
     public constructor() {
         super();
@@ -97,13 +100,16 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
-        // let speedC=6
+        let speedC=1
+        let moca=0.2
 
         let mian= this.createBitmapByName("mian_jpg")
         // mian.texture = RES.getRes("box");
         mian.fillMode = egret.BitmapFillMode.SCALE
         let qiu=this.createBitmapByName("qiuqiu_3_png")
         let box1=this.createDefaultObj(1,50,50)
+        let outNum=0
+        let maxTime=0
         qiu.width *=0.5
         qiu.height *=0.5
         mian.width =646
@@ -114,28 +120,33 @@ class Main extends egret.DisplayObjectContainer {
         // box1.addChild(qiu)
         this.startPointX=0
         this.startPointY=0
-        qiu.x=512
-        qiu.y=323
+        qiu.x=323
+        qiu.y=512
         qiu.anchorOffsetX = qiu.width/2
         qiu.anchorOffsetY = qiu.height/2
         var label:egret.TextField = new egret.TextField(); 
-        label.text = "This is a text!"; 
+        label.text = "当前游戏时间：0"; 
         this.addChild( label );
 
         var label2:egret.TextField = new egret.TextField(); 
-        label2.text = "This is a text!"; 
+        label2.text = "碰壁失败次数：0"; 
         this.addChild( label2 );
         label2.y=50
 
-        var label1:egret.TextField = new egret.TextField(); 
-        label1.text = "This is a text!"; 
-        this.addChild( label1 );
-        label1.y=150
+        var label3:egret.TextField = new egret.TextField(); 
+        label3.text = "最长游戏时间：0"; 
+        this.addChild( label3 );
+        label3.y=100
 
-        // let xSpeed=(Math.random()*2-1)*speedC
-        // let ySpeed=(Math.random()*2-1)*speedC
-        qiu["xSpeed"]=3
-        qiu["ySpeed"]=3
+        // var label1:egret.TextField = new egret.TextField(); 
+        // label1.text = "This is a text!"; 
+        // this.addChild( label1 );
+        // label1.y=150
+
+        let xSpeed=(Math.random()*2-1)*speedC
+        let ySpeed=(Math.random()*2-1)*speedC
+        qiu["xSpeed"]=xSpeed
+        qiu["ySpeed"]=ySpeed
         // box1.x=100
         // box1.y=100
         // let sky = this.createBitmapByName("bg_jpg");
@@ -148,6 +159,8 @@ class Main extends egret.DisplayObjectContainer {
         // this.startPointX=300
         // this.startPointY=300
         // return;
+        let startTime=(new Date()).valueOf();
+        let endTime=(new Date()).valueOf();
         this.getOrientation(label,label2)
         this.addEventListener( egret.Event.ENTER_FRAME, ( evt:egret.Event )=>{
 
@@ -160,9 +173,9 @@ class Main extends egret.DisplayObjectContainer {
         //     goOne.y=this.startPointY
             qiu["xSpeed"]+=this.xAddSpeed
             qiu["ySpeed"]+=this.yAddSpeed
-            qiu.x+=qiu["xSpeed"]
-            qiu.y+=qiu["ySpeed"]
-            label1.text=qiu["xSpeed"].toFixed(2)+"."+qiu["ySpeed"].toFixed(2)+"."
+            qiu.x+=qiu["xSpeed"]*(1-moca/60)
+            qiu.y+=qiu["ySpeed"]*(1-moca/60)
+            // label1.text=qiu["xSpeed"].toFixed(2)+"."+qiu["ySpeed"].toFixed(2)+"."
             // if(qiu.y<=qiu.height/2 || qiu.y+qiu.height/2>=646){
             //     qiu["ySpeed"]*=-1*0.8
             // }
@@ -170,20 +183,30 @@ class Main extends egret.DisplayObjectContainer {
             // if(qiu.x<=qiu.width/2|| qiu.x+qiu.width/2>=1024){
             //     qiu["xSpeed"]*=-1*0.8
             // }
-
+            endTime=(new Date()).valueOf();
+            label.text = "当前游戏时间："+((endTime-this.startTime)/1000).toFixed(2).toString(); 
             if(qiu.y<=qiu.height/2){
+                this.gameOverAct(label2,label3)
+                // endTime=(new Date()).valueOf();
+                // label.text = "最长游戏时间："+((endTime-startTime)/1000).toFixed(2).toString(); 
+                // outNum++
+                // label2.text = "碰壁失败次数："+outNum.toString();
+                // startTime=endTime
                 qiu.y=qiu.height/2
                 qiu["ySpeed"]*=-1*0.8
             }
             if(qiu.y+qiu.height/2>=1024){
+                this.gameOverAct(label2,label3)
                 qiu.y=1024-qiu.height/2
                 qiu["ySpeed"]*=-1*0.8
             }
             if(qiu.x<=qiu.width/2){
+                this.gameOverAct(label2,label3)
                 qiu.x=qiu.width/2
                 qiu["xSpeed"]*=-1*0.8
             }
             if(qiu.x+qiu.width/2>=646){
+                this.gameOverAct(label2,label3)
                 qiu.x=646-qiu.width/2
                 qiu["xSpeed"]*=-1*0.8
             }
@@ -203,6 +226,19 @@ class Main extends egret.DisplayObjectContainer {
 
     }
 
+    private gameOverAct(item:egret.TextField,item1:egret.TextField){
+        let endTime=(new Date()).valueOf();
+        let timeC=(endTime-this.startTime)
+        if(timeC>this.maxTime){
+            this.maxTime=timeC
+            item1.text = "最长游戏时间："+(timeC/1000).toFixed(2); 
+        }   
+        
+        this.gameNum++
+        item.text = "碰壁失败次数："+this.gameNum.toString(); 
+        this.startTime=endTime
+    }
+
     private getOrientation(item:egret.TextField,item1:egret.TextField){
         var _this1=this
         // if (window.DeviceOrientationEvent!=undefined) {
@@ -212,11 +248,11 @@ class Main extends egret.DisplayObjectContainer {
                     let beta = event.beta*0.017453293
                     let gamma = event.gamma*0.017453293
                     // console.log(alpha,beta,gamma)
-                    item.text=gamma.toFixed(2)+"."+beta.toFixed(2)+"."+alpha.toFixed(2)
+                    // item.text=gamma.toFixed(2)+"."+beta.toFixed(2)+"."+alpha.toFixed(2)
                     // alert(alpha)
             _this1.xAddSpeed=Math.sin(gamma?gamma:0)*9.8/60*_this1.pyNum
             _this1.yAddSpeed=Math.sin(beta?beta:0)*9.8/60*_this1.pyNum
-            item1.text=(Math.sin(gamma?gamma:0)).toFixed(2)+"."+(Math.sin(beta?beta:0)).toFixed(2)
+            // item1.text=(Math.sin(gamma?gamma:0)).toFixed(2)+"."+(Math.sin(beta?beta:0)).toFixed(2)
             }, false);
         // } else {
         //     document.querySelector('body').innerHTML = '你的浏览器不支持陀螺仪';
